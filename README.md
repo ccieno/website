@@ -45,6 +45,7 @@ Each page loads custom CSS with the prospect's brand colours and background imag
 | `csg.html` | CSG |
 | `expat.html` | Expat |
 | `gamcare.html` | GamCare |
+| `hayman.html` | Zoom & PJ Hayman |
 | `hotel.html` | Hotel demo |
 | `itsm.html` | NHS ITSM |
 | `majesty.html` | Majesty Apartments |
@@ -62,7 +63,8 @@ Each page loads custom CSS with the prospect's brand colours and background imag
 3. Update branding (background image, colours, title)
 4. Set the correct `data-env` attribute (`us01` or `eu01`)
 5. Add any prospect logo to the `img/` folder
-6. Commit and push — Cloudflare deploys automatically
+6. **Add an entry to the `pages` array in `index.html`** — the search box is a hardcoded list, not a directory scan, so new pages won't appear in search until added here
+7. Commit and push — Cloudflare deploys automatically
 
 > **Note:** The API key is fetched at runtime from `zoom-sdk-config` — do not hardcode it in the HTML.
 

@@ -1,0 +1,43 @@
+
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;1,700&display=swap" rel="stylesheet">
+    <title>Zoom & PJ Hayman</title>
+
+    <style>
+        body {
+            background-image: url("img/hayman.jpg");
+            background-repeat: no-repeat;
+            background-size: 100%;
+        }
+    </style>
+
+</head>
+
+<body>
+
+
+
+
+</body>
+<script>
+(async () => {
+  try {
+    const r = await fetch('https://zoom-sdk-config.github-b13.workers.dev/config');
+    const { apiKey } = await r.json();
+    const s = document.createElement('script');
+    s.type = 'module';
+    s.src = 'https://us01ccistatic.zoom.us/us01cci/web-sdk/zcc-sdk.js';
+    s.setAttribute('data-apikey', apiKey);
+    s.setAttribute('data-env', 'us01');
+    document.head.appendChild(s);
+  } catch(e) { console.error('Zoom SDK init failed', e); }
+})();
+</script>
+
+</html>
