@@ -45,8 +45,11 @@ Each page loads custom CSS with the prospect's brand colours and background imag
 | `csg.html` | CSG |
 | `expat.html` | Expat |
 | `gamcare.html` | GamCare |
+| `f1.html` | F1 Arcade |
 | `hayman.html` | Zoom & PJ Hayman |
 | `hotel.html` | Hotel demo |
+| `rolec.html` | Rolec |
+| `spa.html` | Spa Breaks |
 | `itsm.html` | NHS ITSM |
 | `majesty.html` | Majesty Apartments |
 | `nanopore.html` | Oxford Nanopore Technologies |
@@ -63,8 +66,8 @@ Each page loads custom CSS with the prospect's brand colours and background imag
 3. Update branding (background image, colours, title)
 4. Set the correct `data-env` attribute (`us01` or `eu01`)
 5. Add any prospect logo to the `img/` folder
-6. **Add an entry to the `pages` array in `index.html`** — the search box is a hardcoded list, not a directory scan, so new pages won't appear in search until added here
-7. Commit and push — Cloudflare deploys automatically
+6. Commit — a pre-commit hook (`update-pages.js`) automatically regenerates the `pages` array in `index.html` from every HTML file's `<title>` tag. Only pages whose title starts with "Zoom" or "ZM" are picked up, so **the `<title>` tag must be set correctly before committing** or the page won't appear in search.
+7. Push, then run `npx wrangler deploy` — **pushing to GitHub does not deploy the site.** Cloudflare only serves what's been deployed via Wrangler, so a page won't go live (even if it's pushed and correct locally) until deploy is run.
 
 > **Note:** The API key is fetched at runtime from `zoom-sdk-config` — do not hardcode it in the HTML.
 
