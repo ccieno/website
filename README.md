@@ -46,6 +46,7 @@ Each page loads custom CSS with the prospect's brand colours and background imag
 | `expat.html` | Expat |
 | `gamcare.html` | GamCare |
 | `f1.html` | F1 Arcade |
+| `levi.html` | Levi's |
 | `hayman.html` | Zoom & PJ Hayman |
 | `hotel.html` | Hotel demo |
 | `rolec.html` | Rolec |
