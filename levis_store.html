@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Zoom & Levi's Stores</title>
+<style>
+:root{
+  --red:#be1328;
+  --red-dark:#9b0f21;
+  --ink:#1a1a1a;
+  --muted:#666;
+  --line:#dddddd;
+  --panel:#ffffff;
+  --bg:#ece7df;
+  --soft:#f7f7f7;
+  --soft-2:#f1f1f1;
+  --shadow:0 30px 80px rgba(0,0,0,.22);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  color:var(--ink);
+  background:radial-gradient(circle at top,#f7f4ef 0,#e7e0d7 60%,#ddd4cb 100%);
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(34,88,255,.22);outline-offset:2px}
+.note{
+  height:34px;
+  display:grid;
+  place-items:center;
+  background:#171717;
+  color:#fff;
+  font-size:11px;
+  padding:0 12px;
+}
+.stage{
+  min-height:calc(100vh - 34px);
+  display:grid;
+  place-items:center;
+  padding:18px;
+}
+.ipad{
+  width:min(1220px,100%);
+  aspect-ratio:4 / 3;
+  max-height:calc(100vh - 70px);
+  background:#161719;
+  border-radius:40px;
+  padding:18px;
+  box-shadow:var(--shadow);
+  position:relative;
+}
+.camera{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:#313236}
+.screen{
+  height:100%;
+  border-radius:28px;
+  overflow:hidden;
+  background:#f4f2ee;
+  display:grid;
+  grid-template-rows:1fr;
+}
+.app{
+  padding:20px;
+  display:grid;
+  grid-template-columns:1.08fr .92fr;
+  gap:18px;
+  min-height:0;
+}
+.left-panel,.right-panel{
+  background:#fff;
+  border:1px solid #d9d9d9;
+  border-radius:18px;
+  min-height:0;
+}
+.left-panel{
+  padding:16px;
+  display:grid;
+  grid-template-rows:auto auto auto 1fr;
+  gap:12px;
+}
+.brand-row{display:flex;align-items:center;gap:12px}
+.batwing{
+  background:var(--red);
+  color:#fff;
+  font-weight:800;
+  letter-spacing:-.03em;
+  font-size:22px;
+  line-height:1;
+  padding:8px 14px 7px;
+  border-radius:3px 3px 12px 12px;
+}
+.title-wrap h1{margin:0;font-size:21px;letter-spacing:-.03em}
+.meta{display:grid;gap:6px}
+.meta-line{display:flex;gap:8px;align-items:center;font-size:13px}
+.meta-icon{
+  width:18px;height:18px;border:1.7px solid #777;border-radius:50%;display:grid;place-items:center;
+  font-size:10px;color:#777;flex:0 0 auto;
+}
+.alert{
+  background:linear-gradient(180deg,#c9152c 0,#b01024 100%);
+  color:#fff;
+  border-radius:10px;
+  padding:12px 14px;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:12px;
+  align-items:start;
+}
+.alert-mark{
+  width:28px;height:28px;border:2px solid rgba(255,255,255,.9);border-radius:6px;display:grid;place-items:center;font-weight:800
+}
+.alert strong{display:block;font-size:14px;margin-bottom:2px}
+.alert p{margin:0;font-size:12px;line-height:1.38}
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  min-height:0;
+}
+.tile{
+  border:1px solid #d9d9d9;
+  background:#fff;
+  border-radius:10px;
+  min-height:94px;
+  padding:12px 12px 10px;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:10px;
+  align-content:start;
+  text-align:left;
+  transition:.15s ease;
+}
+.tile:hover{border-color:#c3c3c3;box-shadow:0 6px 18px rgba(0,0,0,.05);transform:translateY(-1px)}
+.tile-num{font-size:18px;font-weight:800;color:var(--red);line-height:1;margin-top:1px}
+.tile-copy strong{display:block;font-size:14px;line-height:1.2;margin-bottom:2px}
+.tile-copy span{display:block;font-size:12px;color:#444;line-height:1.35}
+.tile-icon{
+  width:30px;height:30px;border:2px solid var(--red);border-radius:8px;color:var(--red);display:grid;place-items:center;font-size:17px;flex:0 0 auto
+}
+.tile-top{display:flex;gap:8px;align-items:flex-start;grid-column:1 / -1}
+.tile-top .tile-num{margin-left:auto}
+.support-note{
+  border:1px solid #e3e0db;
+  border-radius:10px;
+  background:#faf9f7;
+  padding:11px 12px;
+  font-size:12px;
+  color:#666;
+  line-height:1.4;
+}
+.support-note strong{color:#1a1a1a}
+.right-panel{
+  padding:16px;
+  display:grid;
+  grid-template-rows:auto auto 1fr auto auto;
+  gap:12px;
+}
+.right-panel h2{margin:0;font-size:22px;letter-spacing:-.03em}
+.placeholder{
+  border:1px solid #d6d6d6;
+  border-radius:12px;
+  background:#fafafa;
+  padding:18px;
+  min-height:168px;
+  display:grid;
+  place-items:center;
+  text-align:center;
+}
+.placeholder-icon{font-size:42px;color:#707070;line-height:1;margin-bottom:6px}
+.placeholder strong{display:block;font-size:16px;margin-bottom:4px}
+.placeholder p{margin:0;font-size:13px;color:#666;line-height:1.35}
+.chat{
+  min-height:0;
+  overflow:auto;
+  display:grid;
+  align-content:start;
+  gap:10px;
+}
+.assistant-row{display:flex;gap:10px;align-items:flex-start}
+.assistant-avatar{
+  width:34px;height:34px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-size:16px;flex:0 0 auto
+}
+.message{
+  max-width:100%;
+  background:#f3f3f3;
+  border:1px solid #dfdfdf;
+  border-radius:18px;
+  border-top-left-radius:8px;
+  padding:12px 14px;
+  font-size:13px;
+  line-height:1.35;
+}
+.message.user{justify-self:end;background:#171717;color:#fff;border-color:#171717;border-top-left-radius:18px;border-top-right-radius:8px;max-width:84%}
+.system-note{font-size:11px;color:#777;text-align:center}
+.quick-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.quick-grid button{
+  border:1px solid #d8b1b7;
+  background:#fff;
+  color:#333;
+  border-radius:9px;
+  padding:11px 10px;
+  font-size:13px;
+  font-weight:500;
+}
+.input-row{
+  display:grid;
+  grid-template-columns:1fr 64px;
+  gap:10px;
+}
+.input-row input{
+  width:100%;
+  border:1px solid #d9d9d9;
+  border-radius:9px;
+  padding:12px 12px;
+  font-size:14px;
+}
+.send{
+  border:0;
+  border-radius:9px;
+  background:var(--red);
+  color:#fff;
+  font-size:24px;
+  line-height:1;
+}
+.zva-note{
+  background:#faf8f5;
+  border:1px dashed #d7d0c7;
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:11px;
+  color:#666;
+}
+.zva-note code{color:#111}
+.overlay{position:absolute;inset:0;background:rgba(15,15,15,.32);display:none;align-items:center;justify-content:center;padding:18px;z-index:20}
+.overlay.active{display:flex}
+.sheet{
+  width:min(620px,100%);
+  max-height:88%;
+  overflow:auto;
+  background:#fff;
+  border-radius:22px;
+  border:1px solid #ddd;
+  padding:18px;
+  box-shadow:0 24px 60px rgba(0,0,0,.22);
+}
+.sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+.sheet-head h3{margin:0;font-size:22px;letter-spacing:-.03em}
+.sheet-head p{margin:4px 0 0;font-size:12px;color:#666;line-height:1.4}
+.close{border:1px solid #ddd;background:#fff;border-radius:10px;width:38px;height:38px;font-size:18px;font-weight:700}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1 / -1}
+.field label{font-size:11px;font-weight:700}
+.field input,.field select,.field textarea{border:1px solid #ddd;border-radius:10px;padding:10px 11px;background:#fff}
+.field textarea{min-height:88px;resize:vertical}
+.toggle{display:flex;gap:10px;align-items:flex-start;background:#f7f7f7;border:1px solid #e2e2e2;border-radius:12px;padding:11px;margin-top:12px;font-size:12px;color:#666}
+.sheet-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.sheet-actions button{border:1px solid #ddd;background:#fff;border-radius:10px;padding:10px 12px;font-weight:700}
+.sheet-actions .primary{background:var(--red);border-color:var(--red);color:#fff}
+.quick-answer{background:#f7f7f7;border:1px solid #e1e1e1;border-radius:12px;padding:12px;margin-bottom:10px}
+.quick-answer h4{margin:0 0 5px;font-size:14px}
+.quick-answer p{margin:0;font-size:12px;color:#666;line-height:1.42}
+.success-card{background:#f5faf6;border:1px solid #cce4d1;border-radius:12px;padding:12px;margin-top:12px;font-size:12px;line-height:1.42}
+.hidden{display:none !important}
+@media (max-width:980px){
+  .ipad{aspect-ratio:auto;max-height:none;height:auto}
+  .screen{min-height:calc(100vh - 80px)}
+  .app{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .stage{padding:0}
+  .ipad{width:100%;border-radius:0;padding:0;background:transparent;box-shadow:none}
+  .camera{display:none}
+  .screen{border-radius:0;min-height:calc(100vh - 34px)}
+  .app{padding:12px}
+}
+@media (max-width:560px){
+  .grid,.quick-grid,.form-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="note">Internal concept mock-up • Visual design aligned more closely to the landscape tablet concept. Live ZVA code can replace the placeholder slot.</div>
+<div class="stage">
+  <div class="ipad" aria-label="Landscape iPad visual mock">
+    <div class="camera" aria-hidden="true"></div>
+    <div class="screen">
+      <div class="app">
+        <section class="left-panel" aria-label="Support entry panel">
+          <div class="brand-row">
+            <div class="batwing">LEVI'S</div>
+            <div class="title-wrap"><h1>LEVI’S Store Support</h1></div>
+          </div>
+
+          <div class="meta">
+            <div class="meta-line"><strong>Store 0217</strong><span>•</span><span>Oxford Street</span></div>
+            <div class="meta-line"><span class="meta-icon">◦</span><span>Manager on shift</span><span>•</span><span>Sarah</span></div>
+          </div>
+
+          <div class="alert" aria-live="polite">
+            <div class="alert-mark">!</div>
+            <div>
+              <strong>Known issue:</strong>
+              <p>Card payments are degraded in this area.<br>Your store is linked to incident <b>INC840214</b>.<br>No need to raise a duplicate report.</p>
+            </div>
+          </div>
+
+          <div class="grid">
+            <button class="tile" data-flow="payments">
+              <div class="tile-top"><div class="tile-icon">▭</div><div class="tile-num">1</div></div>
+              <div class="tile-copy"><strong>Card payments /<br>POS down</strong></div>
+            </button>
+            <button class="tile" data-flow="wifi">
+              <div class="tile-top"><div class="tile-icon">⌁</div><div class="tile-num">2</div></div>
+              <div class="tile-copy"><strong>Wi-Fi /<br>network down</strong></div>
+            </button>
+            <button class="tile" data-flow="password">
+              <div class="tile-top"><div class="tile-icon">⌂</div><div class="tile-num">3</div></div>
+              <div class="tile-copy"><strong>Password reset</strong></div>
+            </button>
+            <button class="tile" data-flow="hardware">
+              <div class="tile-top"><div class="tile-icon">▣</div><div class="tile-num">4</div></div>
+              <div class="tile-copy"><strong>EPOS /<br>hardware fault</strong></div>
+            </button>
+            <button class="tile" data-flow="ticket">
+              <div class="tile-top"><div class="tile-icon">⎘</div><div class="tile-num">5</div></div>
+              <div class="tile-copy"><strong>Check an<br>existing ticket</strong></div>
+            </button>
+            <button class="tile" id="otherBtn">
+              <div class="tile-top"><div class="tile-icon">?</div><div class="tile-num">6</div></div>
+              <div class="tile-copy"><strong>Something else</strong></div>
+            </button>
+          </div>
+
+          <div class="support-note">
+            <strong>Support stays simple:</strong> your store details carry through automatically, and any incident or update is written back to ServiceNow in the background.
+          </div>
+        </section>
+
+        <section class="right-panel" aria-label="Store support assistant">
+          <h2>Store Support Assistant</h2>
+
+          <!-- ZVA EMBED REPLACEMENT START
+               Replace the ENTIRE contents of #zva-embed-slot with the real Zoom Virtual Agent
+               web chat embed / iframe / SDK snippet when available.
+               Keep the surrounding right-panel layout intact.
+               ZVA EMBED REPLACEMENT END -->
+          <div id="zva-embed-slot" class="placeholder">
+            <div>
+              <div class="placeholder-icon">🎧</div>
+              <strong>Zoom Virtual Agent<br>placeholder</strong>
+              <p>Live Zoom Virtual Agent<br>will be embedded here</p>
+            </div>
+          </div>
+
+          <div class="chat" id="chat" aria-live="polite">
+            <div class="system-note">Scripted concept preview — not a live support connection</div>
+            <div class="assistant-row">
+              <div class="assistant-avatar">◉</div>
+              <div class="message">Hi Sarah — I already know you’re<br>at Store 0217, Oxford Street.<br>What do you need help with today?</div>
+            </div>
+          </div>
+
+          <div class="quick-grid">
+            <button data-flow="payments">Card payments</button>
+            <button data-flow="wifi">Wi-Fi down</button>
+            <button data-flow="ticket">Check ticket</button>
+            <button data-flow="password">Password reset</button>
+          </div>
+
+          <div class="input-row">
+            <input id="chatInput" aria-label="Type your question" placeholder="Type your question..." />
+            <button id="sendBtn" class="send" aria-label="Send">✈</button>
+          </div>
+
+          <div class="zva-note"><strong>Technical note:</strong> your colleague can replace <code>#zva-embed-slot</code> with the live Zoom Virtual Agent code.</div>
+        </section>
+      </div>
+    </div>
+
+    <div class="overlay" id="overlay" aria-hidden="true">
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+        <div class="sheet-head">
+          <div>
+            <h3 id="sheetTitle">Panel</h3>
+            <p id="sheetIntro">Supporting detail appears here without disrupting the main landscape screen.</p>
+          </div>
+          <button class="close" id="closeBtn" aria-label="Close">×</button>
+        </div>
+        <div id="sheetBody"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const chat=document.getElementById('chat');
+const overlay=document.getElementById('overlay');
+const sheetTitle=document.getElementById('sheetTitle');
+const sheetIntro=document.getElementById('sheetIntro');
+const sheetBody=document.getElementById('sheetBody');
+const closeBtn=document.getElementById('closeBtn');
+const chatInput=document.getElementById('chatInput');
+const sendBtn=document.getElementById('sendBtn');
+
+function addMessage(html,type='bot'){
+  if(type==='user'){
+    const user=document.createElement('div');
+    user.className='message user';
+    user.innerHTML=html;
+    chat.appendChild(user);
+  } else {
+    const row=document.createElement('div');
+    row.className='assistant-row';
+    row.innerHTML='<div class="assistant-avatar">◉</div><div class="message">'+html+'</div>';
+    chat.appendChild(row);
+  }
+  chat.scrollTop=chat.scrollHeight;
+}
+function addCard(html){
+  const d=document.createElement('div');
+  d.className='success-card';
+  d.innerHTML=html;
+  chat.appendChild(d);
+  chat.scrollTop=chat.scrollHeight;
+}
+function runFlow(flow){
+  if(flow==='payments'){
+    addMessage('Card payments','user');
+    setTimeout(()=>{
+      addMessage('I can already see a known payments incident affecting your area. Your store is linked to <b>INC840214</b>, so I will not create a duplicate report.');
+    },150);
+  }
+  if(flow==='wifi'){
+    addMessage('Wi-Fi down','user');
+    setTimeout(()=>{
+      addMessage('I have started the network checks. If the next test fails, I can bring in a specialist or start browser video without making you repeat the problem.');
+    },150);
+  }
+  if(flow==='password'){
+    addMessage('Password reset','user');
+    setTimeout(()=>{
+      addMessage('This usually can be handled automatically. I will verify the managed device, reset access and write the outcome back to ServiceNow.');
+      setTimeout(()=>addCard('<strong>Resolved automatically.</strong><br>Access restored and logged in ServiceNow.'),360);
+    },150);
+  }
+  if(flow==='hardware'){
+    addMessage('EPOS / hardware fault','user');
+    setTimeout(()=>{
+      addMessage('I have attached the store and device context. A live visual check may be faster than describing the fault.');
+    },150);
+  }
+  if(flow==='ticket'){
+    addMessage('Check ticket','user');
+    setTimeout(()=>{
+      addMessage('Your latest incident is <b>INC840214</b>. Status: <b>In progress</b>. Next update due in 10 minutes.');
+    },150);
+  }
+}
+function openSheet(title,intro,html){
+  sheetTitle.textContent=title;
+  sheetIntro.textContent=intro;
+  sheetBody.innerHTML=html;
+  overlay.classList.add('active');
+  overlay.setAttribute('aria-hidden','false');
+  closeBtn.focus();
+  wireSheet();
+}
+function closeSheet(){
+  overlay.classList.remove('active');
+  overlay.setAttribute('aria-hidden','true');
+}
+function wireSheet(){
+  const form=document.getElementById('issueForm');
+  if(form){
+    form.addEventListener('submit',e=>{
+      e.preventDefault();
+      const id='INC'+Math.floor(100000+Math.random()*899999);
+      document.getElementById('success').classList.remove('hidden');
+      document.getElementById('success').innerHTML='<strong>Incident created.</strong><br>'+id+' has been created in ServiceNow and linked to Store 0217.';
+      addMessage('I have created <b>'+id+'</b> and started the first resolution steps.');
+    });
+  }
+  const cancel=document.getElementById('cancelSheet');
+  if(cancel) cancel.addEventListener('click',closeSheet);
+}
+function openIssueForm(){
+  openSheet('Raise another issue','Use this when none of the main six issue options fits. The form stays short because the store is already known.',
+    '<form id="issueForm">'+
+      '<div class="form-grid">'+
+        '<div class="field"><label for="issueType">Issue type</label><select id="issueType"><option>EPOS / hardware</option><option>Payments</option><option>Network / Wi-Fi</option><option>Account access</option><option>Other</option></select></div>'+
+        '<div class="field"><label for="contactMethod">Best way to reach you</label><select id="contactMethod"><option>Chat on this device</option><option>Call store landline</option><option>Text or WhatsApp me</option><option>Email</option></select></div>'+
+        '<div class="field"><label for="urgency">Urgency</label><select id="urgency"><option>Normal</option><option>High</option><option>Store down</option></select></div>'+
+        '<div class="field"><label for="store">Store</label><input id="store" value="Store 0217 • Oxford Street" readonly /></div>'+
+        '<div class="field full"><label for="description">What is happening?</label><textarea id="description" placeholder="A short description is enough..."></textarea></div>'+
+      '</div>'+
+      '<label class="toggle"><input type="checkbox" checked /> Keep me updated by SMS / WhatsApp if I go off shift.</label>'+
+      '<div class="sheet-actions"><button type="button" id="cancelSheet">Cancel</button><button type="submit" class="primary">Create incident</button></div>'+
+      '<div class="success-card hidden" id="success"></div>'+
+    '</form>'
+  );
+}
+
+document.querySelectorAll('[data-flow]').forEach(btn=>btn.addEventListener('click',()=>runFlow(btn.dataset.flow)));
+document.getElementById('otherBtn').addEventListener('click',openIssueForm);
+sendBtn.addEventListener('click',()=>{
+  const text=chatInput.value.trim();
+  if(!text) return;
+  addMessage(text,'user');
+  chatInput.value='';
+  setTimeout(()=>addMessage('Thanks. I have attached that to Store 0217 and I will start with the fastest route to resolution.'),180);
+});
+chatInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendBtn.click();}});
+closeBtn.addEventListener('click',closeSheet);
+overlay.addEventListener('click',e=>{if(e.target===overlay) closeSheet();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeSheet();});
+</script>
+</body>
+<script>
+(async () => {
+  try {
+    const r = await fetch('https://zoom-sdk-config.github-b13.workers.dev/config');
+    const { apiKey } = await r.json();
+    const s = document.createElement('script');
+    s.type = 'module';
+    s.src = 'https://us01ccistatic.zoom.us/us01cci/web-sdk/zcc-sdk.js';
+    s.setAttribute('data-apikey', apiKey);
+    s.setAttribute('data-env', 'us01');
+    document.head.appendChild(s);
+  } catch(e) { console.error('Zoom SDK init failed', e); }
+})();
+</script>
+</html>
