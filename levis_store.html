@@ -155,23 +155,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .right-panel{
   padding:16px;
   display:grid;
-  grid-template-rows:auto auto 1fr auto auto;
+  grid-template-rows:auto 1fr;
   gap:12px;
 }
 .right-panel h2{margin:0;font-size:22px;letter-spacing:-.03em}
-.placeholder{
-  border:1px solid #d6d6d6;
-  border-radius:12px;
-  background:#fafafa;
-  padding:18px;
-  min-height:168px;
-  display:grid;
-  place-items:center;
-  text-align:center;
+#zva-embed-slot{
+  min-height:0;
 }
-.placeholder-icon{font-size:42px;color:#707070;line-height:1;margin-bottom:6px}
-.placeholder strong{display:block;font-size:16px;margin-bottom:4px}
-.placeholder p{margin:0;font-size:13px;color:#666;line-height:1.35}
 .chat{
   min-height:0;
   overflow:auto;
@@ -348,39 +338,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
           <h2>Store Support Assistant</h2>
 
           <!-- ZVA EMBED REPLACEMENT START
-               Replace the ENTIRE contents of #zva-embed-slot with the real Zoom Virtual Agent
-               web chat embed / iframe / SDK snippet when available.
-               Keep the surrounding right-panel layout intact.
+               This slot is intentionally left blank — the live Zoom widget's
+               launcher docks into the bottom-right corner of this section,
+               and its chat panel opens within it. See the dock script near
+               the end of the file.
                ZVA EMBED REPLACEMENT END -->
-          <div id="zva-embed-slot" class="placeholder">
-            <div>
-              <div class="placeholder-icon">🎧</div>
-              <strong>Zoom Virtual Agent<br>placeholder</strong>
-              <p>Live Zoom Virtual Agent<br>will be embedded here</p>
-            </div>
-          </div>
-
-          <div class="chat" id="chat" aria-live="polite">
-            <div class="system-note">Scripted concept preview — not a live support connection</div>
-            <div class="assistant-row">
-              <div class="assistant-avatar">◉</div>
-              <div class="message">Hi Sarah — I already know you’re<br>at Store 0217, Oxford Street.<br>What do you need help with today?</div>
-            </div>
-          </div>
-
-          <div class="quick-grid">
-            <button data-flow="payments">Card payments</button>
-            <button data-flow="wifi">Wi-Fi down</button>
-            <button data-flow="ticket">Check ticket</button>
-            <button data-flow="password">Password reset</button>
-          </div>
-
-          <div class="input-row">
-            <input id="chatInput" aria-label="Type your question" placeholder="Type your question..." />
-            <button id="sendBtn" class="send" aria-label="Send">✈</button>
-          </div>
-
-          <div class="zva-note"><strong>Technical note:</strong> your colleague can replace <code>#zva-embed-slot</code> with the live Zoom Virtual Agent code.</div>
+          <div id="zva-embed-slot"></div>
         </section>
       </div>
     </div>
@@ -410,6 +373,7 @@ const chatInput=document.getElementById('chatInput');
 const sendBtn=document.getElementById('sendBtn');
 
 function addMessage(html,type='bot'){
+  if(!chat) return; // scripted chat log was removed — the real widget handles this now
   if(type==='user'){
     const user=document.createElement('div');
     user.className='message user';
@@ -424,6 +388,7 @@ function addMessage(html,type='bot'){
   chat.scrollTop=chat.scrollHeight;
 }
 function addCard(html){
+  if(!chat) return;
   const d=document.createElement('div');
   d.className='success-card';
   d.innerHTML=html;
@@ -509,14 +474,16 @@ function openIssueForm(){
 
 document.querySelectorAll('[data-flow]').forEach(btn=>btn.addEventListener('click',()=>runFlow(btn.dataset.flow)));
 document.getElementById('otherBtn').addEventListener('click',openIssueForm);
-sendBtn.addEventListener('click',()=>{
-  const text=chatInput.value.trim();
-  if(!text) return;
-  addMessage(text,'user');
-  chatInput.value='';
-  setTimeout(()=>addMessage('Thanks. I have attached that to Store 0217 and I will start with the fastest route to resolution.'),180);
-});
-chatInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendBtn.click();}});
+if(sendBtn && chatInput){
+  sendBtn.addEventListener('click',()=>{
+    const text=chatInput.value.trim();
+    if(!text) return;
+    addMessage(text,'user');
+    chatInput.value='';
+    setTimeout(()=>addMessage('Thanks. I have attached that to Store 0217 and I will start with the fastest route to resolution.'),180);
+  });
+  chatInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendBtn.click();}});
+}
 closeBtn.addEventListener('click',closeSheet);
 overlay.addEventListener('click',e=>{if(e.target===overlay) closeSheet();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape') closeSheet();});
@@ -534,85 +501,107 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeSheet();});
      reachable by querySelector/textContent/elementFromPoint from the main
      document — only the shadow HOST elements are visible to us.
 
-  2. The SDK creates its host(s) as top-level fixed-position children of
-     <body> with z-index 999999. In testing there were TWO such elements
-     at once (#livesdk__campaign plus one anonymous sibling div) that the
-     SDK keeps in sync internally — docking only one gets silently reset
-     back to match the other. Both must be styled together every time.
+  2. The SDK creates its host(s) as top-level children of <body>, paired
+     with an anonymous sibling it keeps in sync internally — docking only
+     one gets silently reset back to match the other. Both must be styled
+     together every time.
 
-  3. The closed launcher icon positions itself using the CSS containing
+  3. The pairing's own position/z-index scheme has been observed to change
+     between widget-size configs — e.g. fixed/999999 in one config,
+     relative/9990 in another, on the exact same campaign. This code does
+     not hardcode either: it finds the element with id "livesdk__campaign",
+     reads ITS current computed z-index (whatever that happens to be), and
+     treats any other top-level body child sharing that same z-index as the
+     paired sibling.
+
+  4. The closed launcher icon positions itself using the CSS containing
      block of its host, so applying `transform` to the host (which makes
      it a containing block for fixed descendants) is enough to relocate
      the icon anywhere we want.
 
-  4. The OPEN chat panel does NOT resize to fit the host box — it has a
-     fixed intrinsic footprint (~424x648px in this build) and only uses
-     the host's bottom-right corner as an anchor, expanding up-and-left
-     from there. So instead of sizing a snug box, we anchor the host to
-     match the tablet's .screen element (its bottom-right corner lines up
-     with the screen's bottom-right corner), which happens to be almost
-     exactly the panel's natural height — giving the closest fit to
-     "inside the tablet" achievable without controlling the panel's own
-     size directly.
+  5. The OPEN chat panel does NOT resize to fit the host box — it has a
+     fixed intrinsic footprint set in the Contact Center admin config
+     (540x420px as configured for this campaign at time of writing) and
+     only uses the host's bottom-right corner as an anchor, expanding
+     up-and-left from there. That's comfortably smaller than the
+     right-panel section now that it's just a header + blank slot, so we
+     anchor the host to .right-panel's full bounds (its bottom-right
+     corner becomes the panel's anchor point).
 
   Caveat: none of this is an API contract — it's what was observed in one
-  SDK build via devtools. A SDK update could change the shadow structure,
-  the pairing behavior, or the panel's fixed dimensions, in which case this
-  will need re-diagnosing the same way (inspect body children for fixed /
-  z-index:999999 nodes, dock all of them together, remeasure the open
-  panel's actual footprint against .screen).
+  SDK build via devtools, and the panel's fixed pixel size is a config
+  value in Zoom's admin portal that can change independently of this code.
+  If the campaign's configured size changes again, or Zoom ships an SDK
+  update, re-diagnose the same way: inspect body children for the
+  #livesdk__campaign pairing and its current z-index, dock both elements
+  together, then remeasure the open panel's actual footprint against
+  .right-panel.
 */
 (function () {
-  const screen = document.querySelector('.screen');
+  const panel = document.querySelector('.right-panel');
   const slot = document.getElementById('zva-embed-slot');
-  if (!screen || !slot) return;
+  if (!panel || !slot) return;
 
-  function hidePlaceholder() {
-    const ph = slot.querySelector('.placeholder-icon');
-    if (ph && ph.parentElement) ph.parentElement.style.display = 'none';
-  }
-
-  function isWidgetHost(el) {
-    if (el.id && el.id.startsWith('claude-')) return false; // dev-tooling noise, not the SDK
-    const cs = getComputedStyle(el);
-    return cs.position === 'fixed' && cs.zIndex === '999999';
+  // The SDK's z-index/position scheme for its host pair has been observed to
+  // change between widget-size configs (seen: fixed/999999 in one config,
+  // relative/9990 in another). Rather than hardcode either, anchor detection
+  // on the one stable signal seen across both: an element with the literal
+  // id "livesdk__campaign", then treat any OTHER top-level body child that
+  // shares its exact computed z-index as the paired sibling the SDK keeps
+  // in sync with it.
+  function findWidgetHosts() {
+    const campaign = document.getElementById('livesdk__campaign');
+    if (!campaign) return [];
+    const z = getComputedStyle(campaign).zIndex;
+    return [...document.body.children].filter(el => {
+      if (el.id && el.id.startsWith('claude-')) return false; // dev-tooling noise, not the SDK
+      return el === campaign || getComputedStyle(el).zIndex === z;
+    });
   }
 
   function place(el) {
-    const r = screen.getBoundingClientRect();
-    Object.assign(el.style, {
+    const r = panel.getBoundingClientRect();
+    // Round to whole pixels so repeated calls produce an identical style
+    // string when nothing has actually moved — getBoundingClientRect can
+    // return jittering sub-pixel values between calls, and without this,
+    // the attribute-mutation observer below would re-fire on our own
+    // writes forever (place -> style change -> observer -> place -> ...).
+    const want = {
       position: 'fixed',
-      top: r.top + 'px',
-      left: r.left + 'px',
-      width: r.width + 'px',
-      height: r.height + 'px',
+      top: Math.round(r.top) + 'px',
+      left: Math.round(r.left) + 'px',
+      width: Math.round(r.width) + 'px',
+      height: Math.round(r.height) + 'px',
       maxWidth: 'none',
       maxHeight: 'none',
       margin: '0',
       transform: 'translateZ(0)', // makes this the containing block for fixed descendants inside the (closed) shadow tree
       overflow: 'visible',        // the open panel is taller than any sane sub-box here — don't clip it
-      zIndex: 999999
-    });
+      zIndex: '999999'
+    };
+    const unchanged = Object.keys(want).every(k => el.style[k] === want[k]);
+    if (unchanged) return; // nothing to do — avoids retriggering our own attribute observer
+    Object.assign(el.style, want);
   }
 
   const docked = new Set();
 
   function dockAll() {
-    [...document.body.children].filter(isWidgetHost).forEach(el => {
+    findWidgetHosts().forEach(el => {
       place(el);
       if (!docked.has(el)) {
         docked.add(el);
         // the SDK re-syncs paired host elements against each other and will
         // silently revert a one-off style change — keep re-asserting ours.
+        // place() is idempotent (see above) so this settles instead of looping.
         new MutationObserver(() => place(el)).observe(el, { attributes: true, attributeFilter: ['style'] });
-        hidePlaceholder();
-        console.log('[ZCC demo dock] docked widget host into .screen:', el);
+        console.log('[ZCC demo dock] docked widget host into .right-panel:', el);
       }
     });
   }
 
   window.addEventListener('resize', dockAll);
-  if (window.ResizeObserver) new ResizeObserver(dockAll).observe(screen);
+  if (window.ResizeObserver) new ResizeObserver(dockAll).observe(panel);
 
   // Baseline: anything already on the page before the SDK injects itself.
   const before = new Set(Array.from(document.body.children));
