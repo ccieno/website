@@ -523,6 +523,87 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeSheet();});
 </script>
 </body>
 <script>
+/*
+  ZCC webchat "dock into #zva-embed-slot" hack for demo purposes only.
+
+  Zoom's Contact Center web SDK doesn't expose a documented way to mount its
+  widget inside a specific container — it injects its own floating launcher
+  icon + chat panel as fixed-position elements on <body>, and there are no
+  published class/id names to target (the SDK's DOM structure has changed
+  across versions and isn't documented for this kind of override).
+
+  So instead of guessing selectors, this:
+   1. Snapshots what's already a direct child of <body> before the SDK loads.
+   2. Watches for new top-level fixed-position elements the SDK adds
+      (the launcher icon first, then the chat panel once it's opened).
+   3. Forces each one to match the size/position of #zva-embed-slot and
+      keeps it pinned there on resize/scroll.
+
+  Caveat: this is a heuristic, not an API contract. If Zoom ships an SDK
+  update that changes how it positions its root elements (e.g. it stops
+  using position:fixed, or wraps everything in a single shadow root that
+  never appears as a top-level fixed node), this will need adjusting.
+  Worth a dry run in devtools before the actual demo to confirm it's
+  still grabbing the right node(s) — console.log below will show you
+  exactly what it docked.
+*/
+(function () {
+  const slot = document.getElementById('zva-embed-slot');
+  if (!slot) return;
+
+  function hidePlaceholder() {
+    const ph = slot.querySelector('.placeholder-icon');
+    if (ph && ph.parentElement) ph.parentElement.style.display = 'none';
+  }
+
+  function dock(el) {
+    function place() {
+      const r = slot.getBoundingClientRect();
+      Object.assign(el.style, {
+        position: 'fixed',
+        top: r.top + 'px',
+        left: r.left + 'px',
+        width: r.width + 'px',
+        height: r.height + 'px',
+        maxWidth: 'none',
+        maxHeight: 'none',
+        margin: '0',
+        borderRadius: '12px',
+        overflow: 'hidden',
+        zIndex: 999999
+      });
+    }
+    place();
+    window.addEventListener('resize', place);
+    window.addEventListener('scroll', place, true);
+    if (window.ResizeObserver) new ResizeObserver(place).observe(slot);
+    hidePlaceholder();
+    console.log('[ZCC demo dock] docked node into #zva-embed-slot:', el);
+  }
+
+  // Baseline: anything already on the page before the SDK injects itself.
+  const before = new Set(Array.from(document.body.children));
+
+  const observer = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      m.addedNodes.forEach((node) => {
+        if (node.nodeType !== 1) return;           // elements only
+        if (node.parentNode !== document.body) return; // only top-level inserts
+        if (before.has(node)) return;
+
+        const cs = window.getComputedStyle(node);
+        const looksLikeWidget =
+          cs.position === 'fixed' || parseInt(cs.zIndex, 10) > 1000;
+
+        if (looksLikeWidget) {
+          dock(node);
+        }
+      });
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+})();
+
 (async () => {
   try {
     const r = await fetch('https://zoom-sdk-config.github-b13.workers.dev/config');
