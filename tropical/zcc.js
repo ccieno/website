@@ -7,14 +7,21 @@
  * runs. We keep a rolling trail of visited pages in sessionStorage so the flow
  * can see not just where the customer is, but where they've been.
  *
- * The entryParams keys below must exist as Custom Variables in
- * Contact Center Management > Variables, otherwise the flow won't see them.
+ * The keys below must exist as Custom Variables in Contact Center Management >
+ * Preferences > Variables, each with Value = "From website data". They live in
+ * the "tropical" group, so the flow path is global_custom.tropical.<name>.
+ *
+ * See publish() below for how the data is exposed and what to enter for
+ * Source / Item Key / Object Path.
  */
 (function () {
   'use strict';
 
   var TRAIL_KEY = 'tropicalTrail';
   var MAX_TRAIL = 20;
+
+  // ZCC custom-variable group. Flow path is global_custom.<VAR_GROUP>.<name>.
+  var VAR_GROUP = 'tropical';
 
   var page = window.TROPICAL_PAGE || {};
   var pageName = page.name || document.title || 'Unknown';
@@ -65,7 +72,7 @@
     currentPage: pageName,
     currentPath: path,
     currentUrl: window.location.href,
-    destination: destination,                       // '' on the home page
+    currentPageDestination: destination,      // '' on the home and enquiry pages
     // where they've been
     destinationsViewed: seen.join(', '),
     lastDestination: mostRecentDestination,   // last destination page they opened
@@ -76,26 +83,46 @@
     siteSection: 'tropical-demo'
   };
 
-  // ---- hand it to the ZCC web SDK ---------------------------------------
-  // Global config is the reliable way to supply params — script-tag data-*
-  // attributes can be missed when the tag is injected dynamically.
-  window.zoomCampaignSdkConfig = Object.assign(
-    {},
-    window.zoomCampaignSdkConfig || {},
-    { entryParams: entryParams }
-  );
+  // ---- expose it where ZCC can scrape it --------------------------------
+  /* ZCC does NOT accept arbitrary parameters from the web tag. Custom variables
+   * are configured admin-side with Value = "From website data", then a Source,
+   * an Item Key and an Object Path — ZCC reads the page itself.
+   *
+   * (Verified in the browser: the loaded SDK's config object has no entryParams
+   * concept at all, which is why passing them did nothing.)
+   *
+   * So we publish the same object into all four places a Source can point at.
+   * Whichever one you pick in admin, use:
+   *     Item Key    = tropical
+   *     Object Path = destinationsViewed   (the variable name)
+   */
+  function publish() {
+    var json;
+    try { json = JSON.stringify(entryParams); } catch (e) { json = '{}'; }
 
-  // Some SDK builds read this name instead; harmless to set both.
-  window.zoomSdkConfig = Object.assign(
-    {},
-    window.zoomSdkConfig || {},
-    { entryParams: entryParams }
-  );
+    // 1. Global JavaScript variable  →  window.tropical.destinationsViewed
+    window[VAR_GROUP] = entryParams;
 
-  // Exposed for debugging and for the on-page "context" panel.
-  window.tropicalContext = { trail: trail, entryParams: entryParams };
+    // 2. Local storage               →  key "tropical"
+    try { localStorage.setItem(VAR_GROUP, json); } catch (e) {}
 
-  console.log('[Tropical] ZCC entryParams', entryParams);
+    // 3. Session storage             →  key "tropical"
+    try { sessionStorage.setItem(VAR_GROUP, json); } catch (e) {}
+
+    // 4. Cookie                      →  name "tropical"
+    // Cookies cap around 4KB; the trail is the only field that grows, and it's
+    // capped at 20 entries, so we stay well inside that.
+    try {
+      document.cookie = VAR_GROUP + '=' + encodeURIComponent(json) +
+        ';path=/;max-age=86400;SameSite=Lax';
+    } catch (e) {}
+
+    window.tropicalContext = { trail: trail, vars: entryParams, group: VAR_GROUP };
+  }
+
+  publish();
+
+  console.log('[Tropical] website data published as "' + VAR_GROUP + '"', entryParams);
 
   function renderPanel() {
     var el = document.getElementById('zccContext');
@@ -109,29 +136,33 @@
 
   document.addEventListener('DOMContentLoaded', renderPanel);
 
-  /* Merge extra params in at runtime — used by the enquiry form so the flow can
+  /* Merge extra values in at runtime — used by the enquiry form so the flow can
    * see what the customer had filled in before they asked for help.
    *
-   * Caveat: the SDK reads the config when the chat session starts, so anything
-   * added here only lands if the customer opens chat AFTER the update. Values
-   * set before the widget is opened (the normal case) come through fine.
+   * Caveat: ZCC scrapes the page when the engagement starts, so anything added
+   * here only lands if the customer opens chat AFTER the update. Filling a
+   * field then asking for help — the normal order — works fine.
    */
   window.tropicalUpdate = function (extra) {
     if (!extra) return entryParams;
     Object.keys(extra).forEach(function (k) {
       entryParams[k] = extra[k] === undefined || extra[k] === null ? '' : String(extra[k]);
     });
-    window.zoomCampaignSdkConfig.entryParams = entryParams;
-    window.zoomSdkConfig.entryParams = entryParams;
+    publish();
     renderPanel();
-    console.log('[Tropical] entryParams updated', extra);
     return entryParams;
   };
 
   // Clear the trail — handy between demo runs. Call tropicalReset() in console
   // or click the reset link in the footer.
   window.tropicalReset = function () {
-    try { sessionStorage.removeItem(TRAIL_KEY); } catch (e) {}
+    try {
+      sessionStorage.removeItem(TRAIL_KEY);
+      sessionStorage.removeItem('tropicalRef');
+      sessionStorage.removeItem(VAR_GROUP);
+      localStorage.removeItem(VAR_GROUP);
+      document.cookie = VAR_GROUP + '=;path=/;max-age=0';
+    } catch (e) {}
     window.location.reload();
   };
 })();
