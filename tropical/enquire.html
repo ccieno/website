@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enquire — Tropical Sky</title>
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/tropical/site.css">
+
+<!-- Page identity: read by zcc.js and pushed into ZCC as entry parameters -->
+<script>window.TROPICAL_PAGE = { name: "Enquiry form", destination: "" };</script>
+<script src="/tropical/zcc.js"></script>
+
+<!-- Zoom Contact Center web tag (chat + cobrowse) -->
+<script
+    data-apikey="pCqEd9fCTp-I9mMoBtXclQ"
+    data-env="us01"
+    data-enable-zcb="true"
+    data-enable-z-c-b="true"
+    src="https://us01ccistatic.zoom.us/us01cci/web-sdk/zcc-sdk.js"></script>
+<script src="/tropical/script.js"></script>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <span>ATOL protected 4054 &nbsp;•&nbsp; ABTA V4941 &nbsp;•&nbsp; 30 years of tailor-made travel</span>
+    <span>Call us on <a href="tel:01432000000">01432 000 000</a> &nbsp;•&nbsp; Mon–Sat 9am–8pm</span>
+  </div>
+</div>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="/tropical/">TROPICAL<span>SKY</span></a>
+    <nav class="main">
+      <a href="/tropical/">Home</a>
+      <a href="/tropical/maldives">Maldives</a>
+      <a href="/tropical/mexico">Mexico</a>
+      <a href="/tropical/bali">Bali</a>
+      <a href="/tropical/enquire" class="active">Enquire</a>
+      <button id="startCobrowseButton" class="btn btn-ghost btn-sm" disabled>Share my screen</button>
+    </nav>
+  </div>
+</header>
+
+<div class="hero" style="min-height:280px;background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1800&amp;q=70'), linear-gradient(135deg,#0b3c5d,#1fb6c9)">
+  <div class="wrap">
+    <p class="eyebrow">Tailor-made enquiry</p>
+    <h1>Tell us about your trip</h1>
+    <p class="lede">Fill in as much or as little as you like. A specialist will come back to you within one working day with two or three options.</p>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+
+        <div id="thanks" class="thanks" style="display:none">
+          <h2>Thanks — that's with us</h2>
+          <p>We've logged your enquiry under reference <span class="ref" id="thanksRef">—</span>. A specialist will be in touch within one working day.</p>
+          <p style="margin-bottom:0">Quote that reference if you call or start a chat and we'll pull it straight up.</p>
+        </div>
+
+        <div class="notice">
+          Your enquiry reference is <span class="ref" id="refDisplay">—</span> — quote it if you'd rather talk it through.
+        </div>
+
+        <form id="enquiryForm" novalidate>
+
+          <fieldset>
+            <legend>Your trip</legend>
+
+            <div class="field">
+              <label for="destination">Where would you like to go?</label>
+              <select id="destination" name="destination">
+                <option value="">Please choose…</option>
+                <option value="Maldives">Maldives</option>
+                <option value="Mexico">Mexico</option>
+                <option value="Bali">Bali</option>
+                <option value="Not sure yet">Not sure yet — suggest something</option>
+              </select>
+              <span class="hint" id="prefillHint" style="display:none"></span>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="travelMonth">Roughly when?</label>
+                <input type="month" id="travelMonth" name="travelMonth">
+              </div>
+              <div class="field">
+                <label for="nights">How many nights?</label>
+                <input type="number" id="nights" name="nights" min="3" max="30" step="1" placeholder="e.g. 10">
+              </div>
+              <div class="field">
+                <label for="airport">Departing from</label>
+                <select id="airport" name="airport">
+                  <option value="">Any UK airport</option>
+                  <option>London Heathrow</option>
+                  <option>London Gatwick</option>
+                  <option>Manchester</option>
+                  <option>Birmingham</option>
+                  <option>Edinburgh</option>
+                  <option>Bristol</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="adults">Adults</label>
+                <input type="number" id="adults" name="adults" min="1" max="12" step="1" value="2">
+              </div>
+              <div class="field">
+                <label for="children">Children</label>
+                <input type="number" id="children" name="children" min="0" max="10" step="1" value="0">
+              </div>
+              <div class="field">
+                <label for="budget">Budget per person</label>
+                <select id="budget" name="budget">
+                  <option value="">Not sure yet</option>
+                  <option>Up to £1,500</option>
+                  <option>£1,500 – £2,500</option>
+                  <option>£2,500 – £4,000</option>
+                  <option>£4,000+</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label">Is this a special occasion?</span>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="occasion" value="No" checked> No</label>
+                <label class="choice"><input type="radio" name="occasion" value="Honeymoon"> Honeymoon</label>
+                <label class="choice"><input type="radio" name="occasion" value="Anniversary"> Anniversary</label>
+                <label class="choice"><input type="radio" name="occasion" value="Big birthday"> Big birthday</label>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label">Anything you'd particularly like?</span>
+              <div class="choices">
+                <label class="choice"><input type="checkbox" name="extras" value="Overwater villa"> Overwater villa</label>
+                <label class="choice"><input type="checkbox" name="extras" value="All inclusive"> All inclusive</label>
+                <label class="choice"><input type="checkbox" name="extras" value="Adults only"> Adults only</label>
+                <label class="choice"><input type="checkbox" name="extras" value="Private transfers"> Private transfers</label>
+                <label class="choice"><input type="checkbox" name="extras" value="Two-centre"> Two-centre trip</label>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Your details</legend>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="firstName">First name</label>
+                <input type="text" id="firstName" name="firstName" autocomplete="given-name">
+              </div>
+              <div class="field">
+                <label for="lastName">Last name</label>
+                <input type="text" id="lastName" name="lastName" autocomplete="family-name">
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com">
+              </div>
+              <div class="field">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="07700 900000">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="notes">Anything else we should know?</label>
+              <textarea id="notes" name="notes" placeholder="Dietary requirements, accessibility, flights you've already looked at…"></textarea>
+            </div>
+
+            <div class="field">
+              <label class="choice"><input type="checkbox" id="consent" name="consent"> Yes, you can email me occasional offers</label>
+            </div>
+          </fieldset>
+
+          <!-- Masked section: use this to demo CoBrowse field masking.
+               Masking is configured per-field in Contact Center Management;
+               the data-zcb-mask hook below is a convenient selector for it. -->
+          <fieldset>
+            <legend>Deposit (demo only — do not enter real details)</legend>
+            <div class="notice" style="margin-bottom:16px">
+              These fields exist purely to demo CoBrowse masking. Nothing is submitted anywhere.
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="cardName">Name on card</label>
+                <input type="text" id="cardName" name="cardName" autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="cardNumber">Card number</label>
+                <input type="text" id="cardNumber" name="cardNumber" inputmode="numeric"
+                       autocomplete="off" data-zcb-mask="true" placeholder="0000 0000 0000 0000">
+                <span class="hint">Should appear masked to the agent during CoBrowse.</span>
+              </div>
+            </div>
+          </fieldset>
+
+          <p>
+            <button type="submit" class="btn btn-primary">Send my enquiry</button>
+            <button type="button" id="resetForm" class="btn btn-ghost" style="margin-left:8px">Clear form</button>
+          </p>
+        </form>
+
+      </div>
+
+      <div>
+        <div class="panel">
+          <h3>What happens next</h3>
+          <ul class="ticks">
+            <li>A specialist reads your enquiry — not a bot.</li>
+            <li>You'll hear back within one working day.</li>
+            <li>We'll send two or three options, with honest notes on each.</li>
+            <li>Nothing is booked until you say so.</li>
+          </ul>
+        </div>
+
+        <div class="panel" style="margin-top:22px">
+          <h3>Prefer to talk?</h3>
+          <p style="color:var(--muted);font-size:15px">Start a chat and we can fill this in together — with your permission we can see the same screen as you.</p>
+          <p style="margin-bottom:0"><a class="btn btn-primary btn-sm" href="tel:01432000000">Call 01432 000 000</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="helpstrip">
+  <div class="wrap">
+    <div>
+      <h3>Stuck on the form?</h3>
+      <p>Click "Share my screen" and we'll walk through it with you.</p>
+    </div>
+    <div class="actions">
+      <a class="btn btn-primary" href="tel:01432000000">Call 01432 000 000</a>
+    </div>
+  </div>
+</div>
+
+<footer class="site">
+  <div class="wrap">
+    <a href="/tropical/">Home</a>
+    <a href="/tropical/maldives">Maldives</a>
+    <a href="/tropical/mexico">Mexico</a>
+    <a href="/tropical/bali">Bali</a>
+    <a href="/tropical/enquire">Enquire</a>
+    <details style="margin-top:18px">
+      <summary style="cursor:pointer;color:#cfe6f2;font-size:13px">Demo: what we're passing to Zoom</summary>
+      <div id="zccContext" style="background:#0d3550;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:13px"></div>
+    </details>
+    <p class="demo-note">
+      Demo site for Zoom Contact Center — not a real travel agency. Nothing on this form is submitted or stored.
+      <a href="#" onclick="tropicalReset();return false;" style="margin-left:8px">Reset browsing trail</a>
+    </p>
+  </div>
+</footer>
+
+<script src="/tropical/enquire.js"></script>
+
+</body>
+</html>
